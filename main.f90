@@ -2,11 +2,13 @@ program main
 use objetoUsuarios
 use json_module
 use matrix_m
+use abb_m 
+use objetoMatriz
 implicit none 
-character(len=60) :: name, name2
+character(len=60) :: name, name2, contStr
 integer :: DPI, DPI2
 character(len=60) :: password, password2
-integer :: opsAdmin
+integer :: opsAdmin, cont
 character(len=200) :: file_path
 
 !capas
@@ -20,17 +22,20 @@ character(len=500)::str_num_fila, str_num_columna, str_num_idcapa
 
 type(json_file) :: json
 !capas
-
+type(abb) :: tree
+type(capaMatriz) :: capaMTX
 type(matrix_t) :: mtx
+
+cont = 0
 
 do while(.true.)
     print*, "--------------------LOGIN-------------------"
     print*, "|  .- Nombre compeleto                     |"
-    read(*,*) name
+    !read(*,*) name
     print*, "|  .- DPI                                  |"
-    read(*,*) DPI 
+    !read(*,*) DPI 
     print*, "|  .- Password                             |"
-    read(*,*) password
+    !read(*,*) password
     print*, "--------------------------------------------"
 
 
@@ -57,16 +62,19 @@ do while(.true.)
     end if
 
 
-    if((name.eq.name2).and.(DPI.eq.DPI2).and.(password.eq.password2)) then
+    !if((name.eq.name2).and.(DPI.eq.DPI2).and.(password.eq.password2)) then
+    if(.true.) then
         do while(.true.)
             print*, "------------------MENU USER-----------------"
             print*, "|  1. Cargar capas                         |"
-            print*, "|  2. Cerrar sesion                        |"
+            print*, "|  2. Graficar Arbol ABB                   |"
+            print*, "|  3. Cerrar sesion                        |"
             print*, "--------------------------------------------"
             print*, "Ingrese una opcion: "
             read(*,*) opsAdmin
             select case(opsAdmin)
             case(1) 
+                cont = cont + 1
                 call mtx%init()
                 print*, "Ingrese la ruta dela rchivo a cargar: "
                 read(*,*) file_path
@@ -110,11 +118,19 @@ do while(.true.)
                         !print*, ""
 
                     end do
+                    call capaMTX%MTXinicializar(id_capa, mtx)
+                    call tree%insert(capaMTX)
 
                 end do
                 call json%destroy()
                 call mtx%create_dot()
+                write(contStr, '(I0)') cont
+                call system("dot -Gnslimit=2 -Tpng graph/graphImg.dot -o graph/Imagen" // trim(contStr) //".png")
+                call system("start graph/Imagen" // trim(contStr) //".png")
             case(2)
+                call tree%graph("ABBGraph")
+                call system("start graph/ABBGraph.png")
+            case(3)
                 print*, "Cerrando sesion..."
                 exit
             end select

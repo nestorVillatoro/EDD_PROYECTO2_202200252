@@ -4,7 +4,7 @@ module header_m
   
     type, public :: matrix_node
       integer ::  row, col
-      character(len=10) :: value
+      character(len=10) :: value 
       type(matrix_node), pointer :: left => null()
       type(matrix_node), pointer :: right => null()
       type(matrix_node), pointer :: up => null()

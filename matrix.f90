@@ -1,7 +1,7 @@
 module matrix_m
     use header_m 
     implicit none
-  
+   
     type matrix_t
       type(header_t), pointer :: col => null()
       type(header_t), pointer :: row => null()
@@ -425,7 +425,7 @@ module matrix_m
     subroutine write_dot(self, code)
       class(matrix_t), intent(in) :: self
       character(len=*), intent(in) :: code
-      open(10, file='graph.dot', status='replace', action='write')
+      open(10, file='graph/graphImg.dot', status='replace', action='write')
       write(10, '(A)') trim(code)
       close(10)
     end subroutine write_dot
