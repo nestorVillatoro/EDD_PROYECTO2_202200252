@@ -2,14 +2,14 @@
       "id_capa": 0,
       "pixeles": [
         {
-            "fila": 25,
-            "columna": 31,
-            "color": "#FFCC33"
+            "fila": 1,
+            "columna": 1,
+            "color": "#A51717"
         },
         {
-            "fila": 38,
-            "columna": 31,
-            "color": "#FFCC40"
+            "fila": 1,
+            "columna": 2,
+            "color": "#A51717"
         }
       ]
     },
@@ -17,10 +17,25 @@
       "id_capa": 1,
       "pixeles": [
         {
-            "fila": 21,
-            "columna": 37,
-            "color": "#FFCC27"
+            "fila": 2,
+            "columna": 1,
+            "color": "#1737A5"
         }
+        ]
+    },
+    {
+      "id_capa": 2,
+      "pixeles": [
+        {
+            "fila": 3,
+            "columna": 2,
+            "color": "#00FD17"
+        },
+        {
+          "fila": 3,
+          "columna": 3,
+          "color": "#00FD17"
+      }
         ]
     }
 ]

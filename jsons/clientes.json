@@ -8,5 +8,10 @@
         "dpi":"6745567890123",
         "nombre_cliente":"cliente 2",
         "password": "edd1s2022"
+    },
+    {
+        "dpi":"6745567890101",
+        "nombre_cliente":"cliente3",
+        "password": "edd1s2023"
     }
 ]

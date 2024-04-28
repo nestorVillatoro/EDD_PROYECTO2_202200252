@@ -16,13 +16,18 @@ module abb_m
         procedure :: insert
         procedure :: delete
         procedure :: preorder
+        procedure :: preorder2
         procedure :: inorder
+        procedure :: inorder2
         procedure :: posorder
+        procedure :: posorder2
         procedure :: graph
+        procedure :: repHojas
+        procedure :: profundidad
     end type abb
 
     contains    
-    !Subrutinas del tipo abb
+    
     subroutine insert(self, val)
         class(abb), intent(inout) :: self
         type(capaMatriz), intent(in) :: val
@@ -61,6 +66,7 @@ module abb_m
     
         self%root => deleteRec(self%root, val)
     end subroutine delete
+
     recursive function deleteRec(root, value) result(res)
         type(Node_t), pointer :: root
         type(capaMatriz), intent(in) :: value
@@ -77,6 +83,7 @@ module abb_m
         else if (value%IdC > root%value%IdC) then
             root%right => deleteRec(root%right, value)
         else
+            
             if (.not. associated(root%left)) then
                 temp => root%right
                 deallocate(root)
@@ -96,6 +103,34 @@ module abb_m
 
         res => root
     end function deleteRec
+
+
+    subroutine repHojas(self)
+        class(abb), intent(in) :: self
+        
+        integer :: num_hojas
+        
+        num_hojas = 0
+        call repHojasRec(self%root, 10, num_hojas)
+
+    end subroutine repHojas
+    
+    recursive subroutine repHojasRec(node, unit_num, num_hojas)
+        type(Node_t), pointer :: node
+        integer :: unit_num
+        integer :: num_hojas
+        character(len=20) :: str_idcapa 
+        if (associated(node)) then
+            call repHojasRec(node%left, unit_num, num_hojas)
+            if (.not. associated(node%left) .and. .not. associated(node%right)) then
+                write(str_idcapa, '(I0)') node%value%IdC
+                print*, "capa ID: ", str_idcapa
+            end if
+            call repHojasRec(node%right, unit_num, num_hojas)
+        end if
+    end subroutine repHojasRec
+    
+
     recursive subroutine getMajorOfMinors(root, major)
         type(Node_t), pointer :: root, major
         if (associated(root%right)) then
@@ -122,6 +157,32 @@ module abb_m
         end if
     end subroutine preorderRec
 
+    function preorder2(self, cantCapas) result(listaID)
+        class(abb), intent(in) :: self
+        integer, intent(in):: cantCapas
+        integer, allocatable:: listaID(:)
+
+        allocate(listaID(cantCapas))
+        
+        call preorderRec2(self%root, cantCapas, listaID)
+        write(*, '()')
+    end function preorder2
+    recursive subroutine preorderRec2(root, cantCapas, listaID)
+        type(Node_t), pointer, intent(in) :: root
+        integer, intent(in):: cantCapas
+        integer, allocatable:: listaID(:)
+        integer :: cont = 1
+
+        if(associated(root) .and. cont <= cantCapas) then
+            ! RAIZ - IZQ - DER
+            write(*, '(I0 A)', advance='no') root%value%IdC, " - "
+            listaID(cont) = root%value%IdC
+            cont = cont +1 
+            call preorderRec2(root%left, cantCapas, listaID)
+            call preorderRec2(root%right, cantCapas, listaID)
+        end if
+    end subroutine preorderRec2
+
     subroutine inorder(self)
         class(abb), intent(in) :: self
         
@@ -139,6 +200,34 @@ module abb_m
         end if
     end subroutine inordenRec
 
+    function inorder2(self, cantCapas) result(listaID)
+        class(abb), intent(in) :: self
+        integer, intent(in):: cantCapas
+        integer, allocatable:: listaID(:)
+
+        allocate(listaID(cantCapas))
+        
+        call inordenRec2(self%root, cantCapas, listaID)
+        print *, ""
+    end function inorder2
+    recursive subroutine inordenRec2(root, cantCapas, listaID)
+        type(Node_t), pointer, intent(in) :: root
+        integer, intent(in):: cantCapas
+        integer, allocatable:: listaID(:)
+        integer :: cont = 1
+
+        if(associated(root) .and. cont <= cantCapas) then
+            ! IZQ - RAIZ - DER
+            call inordenRec2(root%left, cantCapas, listaID)
+            if(cont <= cantCapas) then
+            write(*, '(I0 A)', advance='no') root%value%IdC, " - "
+            listaID(cont) = root%value%IdC
+            cont = cont+1
+            end if
+            call inordenRec2(root%right, cantCapas, listaID)
+        end if
+    end subroutine inordenRec2
+
     subroutine posorder(self)
         class(abb), intent(in) :: self
         
@@ -155,6 +244,98 @@ module abb_m
             write(*, '(I0 A)', advance='no') root%value%IdC, " - "
         end if
     end subroutine posordenRec
+
+    function posorder2(self, cantCapas) result(listaID)
+        class(abb), intent(in) :: self
+        integer, intent(in):: cantCapas
+        integer, allocatable:: listaID(:)
+
+        allocate(listaID(cantCapas))
+
+        call posordenRec2(self%root, cantCapas, listaID)
+        print *, ""
+    end function posorder2
+    recursive subroutine posordenRec2(root, cantCapas, listaID)
+        type(Node_t), pointer, intent(in) :: root
+        integer, intent(in):: cantCapas
+        integer, allocatable:: listaID(:)
+        integer :: cont = 1
+
+        if(associated(root)) then
+            ! IZQ - DER - RAIZ
+            call posordenRec2(root%left, cantCapas, listaID)
+            call posordenRec2(root%right, cantCapas, listaID)
+            if(cont <= cantCapas)then
+            write(*, '(I0 A)', advance='no') root%value%IdC, " - "
+            listaID(cont) = root%value%IdC
+            cont = cont+1
+            end if
+        end if
+    end subroutine posordenRec2
+
+    function buscarPorID(self, id_a_graficar, longitud) result(lista_objpixeles)
+    
+        integer, parameter :: max_longitud = 1000000
+        class(abb), intent(inout) :: self
+        integer, intent(in) :: id_a_graficar
+        integer :: longitud
+        type(node_t), pointer :: current
+        type(capaMatriz) :: lista_objpixeles(max_longitud)
+
+        current => self%root
+        
+        
+        do while (associated(current))
+
+            if(current%value%IdC .eq. id_a_graficar) then
+              if (longitud < max_longitud) then
+                lista_objpixeles(longitud+1) = current%value
+                longitud = longitud+1
+              end if
+            end if
+          current => current%left
+        end do
+
+    end function buscarPorID 
+
+    subroutine profundidad(self, listaProf)
+        class(abb), intent(in) :: self
+        integer, dimension(:,:), allocatable, intent(out) :: listaProf
+        integer :: cantNode, currentID
+    
+        cantNode = contNode(self%root)
+        allocate(listaProf(cantNode, 2))  
+    
+        currentID = 1  
+        call profundidadRec(self%root, listaProf, 1, currentID)
+        
+    end subroutine profundidad
+    
+    recursive subroutine profundidadRec(node, listaProf, depth, currentID)
+        type(Node_t), pointer :: node
+        integer, dimension(:,:), intent(out) :: listaProf
+        integer :: depth, currentID
+    
+        if (associated(node)) then
+            call profundidadRec(node%left, listaProf, depth + 1, currentID)
+            
+            listaProf(currentID, 1) = node%value%IdC
+            listaProf(currentID, 2) = depth
+            currentID = currentID + 1
+            
+            call profundidadRec(node%right, listaProf, depth + 1, currentID)
+        end if
+    end subroutine profundidadRec
+
+    recursive function contNode(root) result(num_nodes)
+        type(Node_t), pointer :: root
+        integer :: num_nodes
+    
+        num_nodes = 0
+        if (associated(root)) then
+            num_nodes = 1 + contNode(root%left) + contNode(root%right)
+        end if
+    end function contNode
 
     subroutine graph(self, filename)
         class(abb), intent(in) :: self
